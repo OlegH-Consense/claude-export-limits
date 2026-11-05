@@ -1,0 +1,13 @@
+{
+  "name": "claude-export-limits",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Browser bookmarklets for claude.ai: export the current conversation to JSON/Markdown and show usage limits",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "node tools/build.js",
+    "check": "node tools/build.js --check",
+    "test": "node test/run.js"
+  }
+}
