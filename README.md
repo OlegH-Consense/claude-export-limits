@@ -16,13 +16,14 @@ No extension, no server, no account: each bookmarklet is a single line of JavaSc
 ## Quick start
 
 1. Open the installer page (EN / UK / RU, auto-detected):
-   **<https://remont.uktn.tk/articles/files/claude-bookmarklets-export-and-limits-v2.html>**
-   It is the same file as [`docs/index.html`](docs/index.html) in this repository, so you can also download it and open it locally.
+   **<https://olegh-consense.github.io/claude-export-limits/>** (GitHub Pages, always the latest version from this repository)
+   Mirror: <https://remont.uktn.tk/articles/files/claude-bookmarklets-export-and-limits-v2.html>
+   Both are the same file as [`docs/index.html`](docs/index.html), so you can also download it and open it locally.
 2. Drag **Claude Export** and **Claude Limits** onto your bookmarks toolbar (Firefox: `Ctrl+Shift+B` shows the toolbar).
    If dragging does not work, press *Copy code*, create a bookmark manually and paste the line into its *URL* field.
 3. Open [claude.ai](https://claude.ai/) and click the bookmark.
 
-> GitHub shows HTML files only as source code and does not render them, which is why the installer page is linked from an external site. The files in [`dist/`](dist/) contain the same bookmarklets as plain text if you prefer to paste them yourself.
+> GitHub itself shows HTML files in the repository only as source code; the page is served by GitHub Pages from the `docs/` folder. The files in [`dist/`](dist/) contain the same bookmarklets as plain text if you prefer to paste them yourself.
 
 <p align="center"><img src="docs/img/installer-page.png" alt="Installer page" width="560"></p>
 
