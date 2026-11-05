@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude Bookmarklets</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Browser bookmarklets for claude.ai: export a conversation to JSON/Markdown and show usage limits.">
+<style>
+:root{
+  --bg:#f6f3ee;--surface:#ffffff;--ink:#1f1d1a;--muted:#6b665e;--line:#e4ded4;
+  --accent:#c96442;--accent-ink:#ffffff;
+  --blue:#3a6fb0;--code:#f1ede6;--ok:#2f8a5b;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(31,29,26,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1b1a18;--surface:#25231f;--ink:#ece8e1;--muted:#a39d93;--line:#38352f;
+  --accent:#d97757;--accent-ink:#1b1a18;
+  --blue:#7aa7e0;--code:#2f2c27;--ok:#5cc28e;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:36px 16px 56px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+header h1{margin:0 0 6px;font-size:30px;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted)}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:transparent;color:var(--muted);padding:6px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.hint{display:flex;gap:12px;align-items:center;margin:26px 0 22px;padding:12px 16px;border:1px dashed var(--line);border-radius:12px;background:var(--surface);color:var(--muted);font-size:14px}
+.hint svg{flex:none;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card h2{margin:0 0 4px;font-size:19px}
+.ver{font-size:12px;color:var(--muted);font-weight:600;margin-left:6px}
+.card p{margin:6px 0 0;color:var(--muted);font-size:14.5px}
+.card ul{margin:10px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.card li{margin:3px 0}
+.actions{margin-top:auto;padding-top:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+a.bm{display:inline-flex;align-items:center;gap:9px;padding:11px 18px;border-radius:999px;text-decoration:none;font-weight:700;font-size:15px;cursor:grab;user-select:none;transition:transform .12s,box-shadow .12s;color:var(--accent-ink);background:var(--accent);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+a.bm.limits{background:var(--blue);color:#fff}
+@media (prefers-color-scheme:dark){a.bm.limits{color:#13202e}}
+a.bm:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.15)}
+a.bm:active{cursor:grabbing}
+a.bm svg{width:16px;height:16px}
+button.copy{border:1px solid var(--line);background:transparent;color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-size:14px;cursor:pointer}
+button.copy:hover{background:var(--code)}
+button.copy.done{color:var(--ok);border-color:var(--ok)}
+.toast{font-size:13px;color:var(--accent);min-height:1em;margin-top:8px}
+section.howto{margin-top:30px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+section.howto h3{margin:0 0 8px;font-size:16px}
+section.howto ol{margin:0;padding-left:20px;font-size:14.5px}
+section.howto li{margin:5px 0}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:.92em}
+.notes{margin-top:16px;font-size:13px;color:var(--muted)}
+.notes p{margin:6px 0}
+.notes a{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Claude Bookmarklets</h1>
+    <p data-i18n="sub"></p>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="true">EN</button>
+    <button type="button" data-lang="uk" aria-pressed="false">UK</button>
+    <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+  </div>
+</header>
+
+<div class="hint">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+  <span data-i18n="hint"></span>
+</div>
+
+<div class="grid">
+  <article class="card">
+    <h2><span data-i18n="export_h"></span><span class="ver">v{{EXPORT_VER}}</span></h2>
+    <p data-i18n="export_p"></p>
+    <ul>
+      <li data-i18n="export_li1"></li>
+      <li data-i18n="export_li2"></li>
+      <li data-i18n="export_li3"></li>
+    </ul>
+    <div class="actions">
+      <a class="bm export" data-i18n-title="drag_title" href="{{EXPORT_HREF}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Claude Export</a>
+      <button class="copy" type="button" data-for="export" data-i18n="copy"></button>
+    </div>
+    <div class="toast" aria-live="polite"></div>
+  </article>
+
+  <article class="card">
+    <h2><span data-i18n="limits_h"></span><span class="ver">v{{LIMITS_VER}}</span></h2>
+    <p data-i18n="limits_p"></p>
+    <ul>
+      <li data-i18n="limits_li1"></li>
+      <li data-i18n="limits_li2"></li>
+      <li data-i18n="limits_li3"></li>
+      <li data-i18n="limits_li4"></li>
+      <li data-i18n="limits_li5"></li>
+    </ul>
+    <div class="actions">
+      <a class="bm limits" data-i18n-title="drag_title" href="{{LIMITS_HREF}}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>Claude Limits</a>
+      <button class="copy" type="button" data-for="limits" data-i18n="copy"></button>
+    </div>
+    <div class="toast" aria-live="polite"></div>
+  </article>
+</div>
+
+<section class="howto">
+  <h3 data-i18n="howto_h"></h3>
+  <ol>
+    <li data-i18n="howto_1"></li>
+    <li data-i18n="howto_2"></li>
+    <li data-i18n="howto_3"></li>
+  </ol>
+  <div class="notes">
+    <p data-i18n="note1"></p>
+    <p data-i18n="note2"></p>
+    <p data-i18n="note3"></p>
+  </div>
+</section>
+</div>
+
+<script>
+(function(){
+  var I18N={{I18N_JSON}};
+  var cur="en";
+  function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  function detect(){
+    var q=null;try{q=new URLSearchParams(location.search).get("lang")}catch(e){}
+    var c=[q,lsGet("lang")].concat(navigator.languages||[navigator.language||""]);
+    for(var i=0;i<c.length;i++){
+      var l=String(c[i]||"").slice(0,2).toLowerCase();
+      if(I18N[l])return l;
+    }
+    return "en";
+  }
+  function t(k){return (I18N[cur]&&I18N[cur][k])||I18N.en[k]||""}
+  function apply(l,save){
+    cur=l;document.documentElement.lang=l;
+    var n=document.querySelectorAll("[data-i18n]");
+    for(var i=0;i<n.length;i++)n[i].innerHTML=t(n[i].getAttribute("data-i18n"));
+    n=document.querySelectorAll("[data-i18n-title]");
+    for(i=0;i<n.length;i++)n[i].setAttribute("title",t(n[i].getAttribute("data-i18n-title")));
+    n=document.querySelectorAll(".lang button");
+    for(i=0;i<n.length;i++)n[i].setAttribute("aria-pressed",n[i].getAttribute("data-lang")===l?"true":"false");
+    if(save)lsSet("lang",l);
+  }
+  var lb=document.querySelectorAll(".lang button");
+  for(var i=0;i<lb.length;i++)lb[i].addEventListener("click",function(){apply(this.getAttribute("data-lang"),true)});
+
+  var links=document.querySelectorAll("a.bm");
+  for(i=0;i<links.length;i++){
+    links[i].addEventListener("click",function(e){
+      e.preventDefault();
+      var el=this.closest(".card").querySelector(".toast");
+      el.textContent=t("toast");
+      setTimeout(function(){el.textContent=""},4000);
+    });
+  }
+  function fallbackCopy(text){
+    var ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");
+    ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+    var ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();return ok;
+  }
+  var btns=document.querySelectorAll("button.copy");
+  for(i=0;i<btns.length;i++){
+    btns[i].addEventListener("click",function(){
+      var b=this,code=document.querySelector("a.bm."+b.getAttribute("data-for")).getAttribute("href");
+      function done(ok){
+        b.textContent=t(ok?"copied":"copy_fail");b.classList.toggle("done",ok);
+        setTimeout(function(){b.textContent=t("copy");b.classList.remove("done")},2200);
+      }
+      if(navigator.clipboard&&window.isSecureContext){
+        navigator.clipboard.writeText(code).then(function(){done(true)},function(){done(fallbackCopy(code))});
+      }else done(fallbackCopy(code));
+    });
+  }
+  apply(detect(),false);
+})();
+</script>
+</body>
+</html>
